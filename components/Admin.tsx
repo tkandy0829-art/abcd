@@ -47,7 +47,7 @@ const Admin: React.FC<AdminProps> = ({ users, onUpdateUsers, onBack }) => {
   return (
     <div className="p-6 flex flex-col gap-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-black text-red-600 tracking-tighter">ADMIN PANEL</h2>
+        <h2 className="text-2xl font-black text-red-600 tracking-tighter">관리자 패널 (어드민)</h2>
         <button onClick={onBack} className="text-sm text-gray-400 font-bold hover:text-gray-600 transition-colors">닫기</button>
       </div>
 
@@ -77,13 +77,13 @@ const Admin: React.FC<AdminProps> = ({ users, onUpdateUsers, onBack }) => {
           <div className="mt-2 p-5 bg-gray-50 rounded-2xl border border-gray-200 space-y-4 shadow-inner">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">User Status</p>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">유저 상태 (유저 스테이터스)</p>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="font-black text-lg text-gray-800">{selectedUser.id}</span>
                   {selectedUser.isBanned ? (
-                    <span className="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-black rounded-full">BANNED</span>
+                    <span className="px-2 py-0.5 bg-red-100 text-red-600 text-[10px] font-black rounded-full">정지됨 (벤)</span>
                   ) : (
-                    <span className="px-2 py-0.5 bg-green-100 text-green-600 text-[10px] font-black rounded-full">ACTIVE</span>
+                    <span className="px-2 py-0.5 bg-green-100 text-green-600 text-[10px] font-black rounded-full">정상 (액티브)</span>
                   )}
                 </div>
               </div>
@@ -99,7 +99,7 @@ const Admin: React.FC<AdminProps> = ({ users, onUpdateUsers, onBack }) => {
             </div>
 
             <div>
-              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Balance Management</p>
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">잔액 관리 (밸런스 매니지먼트)</p>
               <div className="flex gap-2 mt-2">
                 <div className="relative flex-1">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold">₩</span>
@@ -121,7 +121,7 @@ const Admin: React.FC<AdminProps> = ({ users, onUpdateUsers, onBack }) => {
             </div>
 
             <div>
-              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Login History (Recent 3)</p>
+              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">방문 기록 (로그인 히스토리)</p>
               <ul className="mt-1 space-y-1">
                 {selectedUser.visitHistory.slice(-3).reverse().map((v: number, i: number) => (
                   <li key={i} className="text-[11px] text-gray-500 flex justify-between">
@@ -136,7 +136,7 @@ const Admin: React.FC<AdminProps> = ({ users, onUpdateUsers, onBack }) => {
       </div>
 
       <div className="mt-2">
-        <h3 className="text-xs font-black text-gray-400 mb-3 px-1 uppercase tracking-widest">Registered User List</h3>
+        <h3 className="text-xs font-black text-gray-400 mb-3 px-1 uppercase tracking-widest">전체 가입 유저 명단</h3>
         <div className="bg-white rounded-3xl border border-gray-100 p-2 shadow-sm max-h-60 overflow-y-auto no-scrollbar">
           <div className="flex flex-col">
             {users.map((u: User) => (
@@ -155,7 +155,7 @@ const Admin: React.FC<AdminProps> = ({ users, onUpdateUsers, onBack }) => {
                     {u.id}
                   </span>
                   {u.isAdmin && (
-                    <span className="text-[8px] bg-indigo-500 text-white px-1.5 py-0.5 rounded font-black">ADMIN</span>
+                    <span className="text-[8px] bg-indigo-500 text-white px-1.5 py-0.5 rounded font-black">관리자</span>
                   )}
                 </div>
                 <div className="text-right">
@@ -174,14 +174,14 @@ const Admin: React.FC<AdminProps> = ({ users, onUpdateUsers, onBack }) => {
       </div>
 
       <div className="mt-2">
-        <h3 className="text-xs font-black text-gray-400 mb-3 px-1 uppercase tracking-widest">System Overview</h3>
+        <h3 className="text-xs font-black text-gray-400 mb-3 px-1 uppercase tracking-widest">시스템 전체 개요</h3>
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-white rounded-3xl border border-gray-100 p-5 shadow-sm">
-            <p className="text-[10px] text-gray-400 font-bold uppercase">Total Users</p>
+            <p className="text-[10px] text-gray-400 font-bold uppercase">전체 유저 수</p>
             <p className="text-xl font-black text-gray-800 mt-1">{users.length}<span className="text-sm font-normal text-gray-400 ml-1">명</span></p>
           </div>
           <div className="bg-white rounded-3xl border border-gray-100 p-5 shadow-sm">
-            <p className="text-[10px] text-gray-400 font-bold uppercase">System Wealth</p>
+            <p className="text-[10px] text-gray-400 font-bold uppercase">전체 유통 자산</p>
             <p className="text-xl font-black text-gray-800 mt-1">
               {users.reduce((acc: number, u: User) => acc + u.balance, 0).toLocaleString()}
               <span className="text-sm font-normal text-gray-400 ml-1">원</span>

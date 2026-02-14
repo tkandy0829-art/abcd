@@ -21,7 +21,7 @@ const Inventory: React.FC<InventoryProps> = ({ user, onUpdateUser, onBack }) => 
       return;
     }
 
-    if (confirm(`보물을 세척하시겠습니까? (비용: ${cost.toLocaleString()}원)`)) {
+    if (confirm(`아이템을 세척하시겠습니까? (비용: ${cost.toLocaleString()}원)`)) {
       const updatedInventory = user.inventory.map((i: Item) =>
         i.id === item.id ? { ...i, isCleaned: true } : i
       );
@@ -31,7 +31,7 @@ const Inventory: React.FC<InventoryProps> = ({ user, onUpdateUser, onBack }) => 
         balance: user.balance - cost,
         inventory: updatedInventory
       });
-      alert('보물이 깨끗해졌습니다! 가치가 상승합니다.');
+      alert('아이템이 깨끗해졌습니다! 가치가 상승합니다.');
     }
   };
 
@@ -53,9 +53,9 @@ const Inventory: React.FC<InventoryProps> = ({ user, onUpdateUser, onBack }) => 
 
       {sortedInventory.length === 0 ? (
         <div className="p-20 text-center text-gray-400">
-          <p className="text-4xl mb-4">Empty</p>
+          <p className="text-4xl mb-4">비어있음</p>
           <p className="text-sm">가방이 비어있습니다.</p>
-          <p className="text-xs mt-1">장터에서 새로운 보물을 찾아보세요!</p>
+          <p className="text-xs mt-1">장터에서 새로운 아이템을 찾아보세요!</p>
         </div>
       ) : (
         <div className="space-y-3">

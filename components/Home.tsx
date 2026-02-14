@@ -22,11 +22,11 @@ const Home: React.FC<HomeProps> = ({ user, onNavigate }) => {
 
           <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 flex justify-between items-center">
             <div>
-              <p className="text-[10px] font-bold opacity-70 uppercase">내가 가진 보물 값</p>
+              <p className="text-[10px] font-bold opacity-70 uppercase">내가 가진 아이템 가치</p>
               <p className="text-xl font-black">{(Number(user.balance + totalItemValue) || 0).toLocaleString()}원</p>
             </div>
             <div className="text-right">
-              <p className="text-[10px] font-bold opacity-70 uppercase">가진 보물</p>
+              <p className="text-[10px] font-bold opacity-70 uppercase">가진 아이템</p>
               <p className="text-xl font-black">{user.inventory.length}개</p>
             </div>
           </div>
@@ -51,7 +51,7 @@ const Home: React.FC<HomeProps> = ({ user, onNavigate }) => {
         />
         <MenuButton
           icon="💰"
-          label="보물 팔기"
+          label="아이템 팔기"
           sub="안 쓰는 물건 팔기"
           onClick={() => onNavigate('sell')}
         />

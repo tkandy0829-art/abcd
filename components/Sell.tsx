@@ -188,14 +188,13 @@ const Sell: React.FC<SellProps> = ({ user, onUpdateUser, onBack, onNegotiationUp
 
   return (
     <div className="p-4 flex flex-col gap-4">
-      <h2 className="text-xl font-bold text-gray-800 mb-2 font-black">어떤 보물을 파시겠어요?</h2>
-      <h2 className="text-2xl font-black text-gray-800 tracking-tight">가진 보물 팔기 💰</h2>
+      <h2 className="text-2xl font-black text-gray-800 tracking-tight">가진 아이템 팔기 💰</h2>
 
       {user.inventory.length === 0 ? (
         <div className="py-20 flex flex-col items-center justify-center text-gray-400 gap-2">
           <span className="text-5xl">📦</span>
-          <p>팔 수 있는 보물이 가방에 없습니다.</p>
-          <button onClick={() => onBack()} className="text-orange-500 font-bold mt-4 hover:underline">보물 사러 가기</button>
+          <p>팔 수 있는 아이템이 가방에 없습니다.</p>
+          <button onClick={() => onBack()} className="text-orange-500 font-bold mt-4 hover:underline">아이템 사러 가기</button>
         </div>
       ) : (
         <div className="space-y-3">

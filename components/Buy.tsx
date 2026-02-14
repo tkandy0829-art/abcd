@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { User, Item, NegotiationState, NPCPersonality, ChatMessage } from '../types';
 import { getNPCResponse } from '../groqService';
 import { aiMarketService } from '../aiMarketService';
+import { supabase } from '../supabaseClient';
 
 interface BuyProps {
   user: User;
@@ -68,39 +69,38 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
           schema: 'public',
           table: 'items'
         },
-        (payload) => {
+        (payload: { eventType: string; new: any; old: any }) => {
           console.log('실시간 변화 감지:', payload);
-          if (payload.eventType === 'UPDATE') {
-            const updatedItem = payload.new as any; // Cast to any to access snake_case properties
-            setItems(current => current.map(item =>
+          if (payload.eventType === 'UPDATE' && payload.new) {
+            const updatedItem = payload.new;
+            setItems((current: Item[]) => (current || []).map((item: Item) =>
               item.id === updatedItem.id
                 ? {
                   ...item,
-                  stock: updatedItem.stock,
-                  name: updatedItem.name,
-                  basePrice: updatedItem.base_price,
-                  category: updatedItem.category,
-                  isFood: updatedItem.is_food,
-                  image: updatedItem.image_url || item.image // Use existing image if new one is null
+                  stock: updatedItem.stock ?? item.stock,
+                  name: updatedItem.name ?? item.name,
+                  basePrice: updatedItem.base_price ?? item.basePrice,
+                  category: updatedItem.category ?? item.category,
+                  isFood: updatedItem.is_food ?? item.isFood,
+                  image: updatedItem.image_url || item.image
                 }
                 : item
             ));
-          } else if (payload.eventType === 'INSERT') {
-            const newItem = payload.new as any; // Cast to any
+          } else if (payload.eventType === 'INSERT' && payload.new) {
+            const newItem = payload.new;
             const formattedItem: Item = {
               id: newItem.id,
               name: newItem.name,
               category: newItem.category,
               basePrice: newItem.base_price,
               isFood: newItem.is_food,
-              isCleaned: false, // Default for new items
-              image: newItem.image_url || `https://picsum.photos/seed/${newItem.id}/200/200`, // Fallback image
+              isCleaned: false,
+              image: newItem.image_url || `https://picsum.photos/seed/${newItem.id}/200/200`,
               stock: newItem.stock
             };
-            setItems(current => [formattedItem, ...current]);
-          } else if (payload.eventType === 'DELETE') {
-            const oldItem = payload.old as any; // Cast to any
-            setItems(current => current.filter(item => item.id !== oldItem.id));
+            setItems((current: Item[]) => [formattedItem, ...(current || [])]);
+          } else if (payload.eventType === 'DELETE' && payload.old) {
+            setItems((current: Item[]) => (current || []).filter((item: Item) => item.id !== payload.old.id));
           }
         }
       )
@@ -120,8 +120,8 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
       );
     }
     switch (sortOrder) {
-      case 'price-asc': list.sort((a: Item, b: Item) => a.basePrice - b.basePrice); break;
-      case 'price-desc': list.sort((a: Item, b: Item) => b.basePrice - a.basePrice); break;
+      case '낮은가격순': list.sort((a: Item, b: Item) => a.basePrice - b.basePrice); break;
+      case '높은가격순': list.sort((a: Item, b: Item) => b.basePrice - a.basePrice); break;
       default: break;
     }
     return list;

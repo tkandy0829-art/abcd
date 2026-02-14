@@ -68,7 +68,7 @@ export const getNPCResponse = async (
        - '친절함': 값을 유저에게 좋게 잘 맞춰줍니다.
        - '보통': 적당히 팽팽하게 밀당합니다.
        - '이상함': 엉뚱한 소리를 늘어놓거나 갑자기 값을 크게 바꾸기도 합니다.
-       - '욕설/무례': **절대 값을 깎아주지 않습니다.** 유저가 자꾸 깎아달라고 하면 "정말 짜증나게 하네", "살 생각 없으면 가세요" 라며 오히려 값을 ${currentPrice}원에서 **높여서** 골탕 먹이세요.
+       - '욕설/무례': **절대 값을 깎아주지 않습니다.** 유저가 자꾸 깎아달라고 하면 "아 씨발 개 짜증나게 하네", "야 이 새끼야 살 생각 없으면 가세요" 라며 오히려 값을 ${currentPrice}원에서 **높여서** 골탕 먹이세요.
     4. **나가는 형식**: 반드시 JSON 형식으로만 응답하세요: {"text": "상대방에게 할 우리말", "newPrice": "고쳐진(또는 그대로인) 값 숫자"}
     5. **값**: 맞춘 마지막 값을 'newPrice' 칸에 숫자로만 적으세요.
   `;
@@ -85,7 +85,7 @@ export const getNPCResponse = async (
     try {
         const response = await groq.chat.completions.create({
             messages,
-            model: "meta-llama/llama-4-scout-17b-16e-instruct",
+            model: "llama-3.3-70b-versatile",
             response_format: { type: "json_object" }
         });
 
