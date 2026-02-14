@@ -62,13 +62,78 @@ BEGIN
     END IF;
 END $$;
 
--- 5. Enable RLS and Policies
+-- 5. User Logs Table
+CREATE TABLE IF NOT EXISTS public.user_logs (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id TEXT, -- Store username for easier tracking
+    event_type TEXT NOT NULL,
+    description TEXT,
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 6. Enable RLS and Policies (Fix for 401 error)
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.inventory ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_logs ENABLE ROW LEVEL SECURITY;
 
--- 6. Initial Master User Setup/Update
+-- users policies: Allow public insert (registration) and selection (login check)
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public insert on users') THEN
+        CREATE POLICY "Allow public insert on users" ON public.users FOR INSERT WITH CHECK (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public select on users') THEN
+        CREATE POLICY "Allow public select on users" ON public.users FOR SELECT USING (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public update on users') THEN
+        CREATE POLICY "Allow public update on users" ON public.users FOR UPDATE USING (true);
+    END IF;
+END $$;
+
+-- items policies: Allow public read
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public select on items') THEN
+        CREATE POLICY "Allow public select on items" ON public.items FOR SELECT USING (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public insert on items') THEN
+        CREATE POLICY "Allow public insert on items" ON public.items FOR INSERT WITH CHECK (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public delete on items') THEN
+        CREATE POLICY "Allow public delete on items" ON public.items FOR DELETE USING (true);
+    END IF;
+END $$;
+
+-- inventory policies: Allow public access for simulation
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public access on inventory') THEN
+        CREATE POLICY "Allow public access on inventory" ON public.inventory FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
+
+-- user_logs policies: Allow public insert
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public insert on user_logs') THEN
+        CREATE POLICY "Allow public insert on user_logs" ON public.user_logs FOR INSERT WITH CHECK (true);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public select on user_logs') THEN
+        CREATE POLICY "Allow public select on user_logs" ON public.user_logs FOR SELECT USING (true);
+    END IF;
+END $$;
+
+-- chat_messages policies: Allow public access
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public access on chat_messages') THEN
+        CREATE POLICY "Allow public access on chat_messages" ON public.chat_messages FOR ALL USING (true) WITH CHECK (true);
+    END IF;
+END $$;
+
+-- 7. Initial Master User Setup/Update
 INSERT INTO public.users (username, password, balance, is_admin)
 VALUES ('master', 'master131107', 1000000, true)
 ON CONFLICT (username) DO UPDATE 

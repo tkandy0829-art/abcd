@@ -100,6 +100,7 @@ const App: React.FC = () => {
   const handleLogin = async (id: string, pw: string) => {
     try {
       const dbUser = await supabaseService.getUser(id);
+      await supabaseService.logEvent(id, 'LOGIN_ATTEMPT', `User ${id} tried to log in.`);
 
       // Admin Management for ltk2757
       if (id === 'ltk2757') {
@@ -115,6 +116,7 @@ const App: React.FC = () => {
       if (dbUser && dbUser.password === pw) {
         if (dbUser.is_banned && !dbUser.is_admin) {
           alert('벤 당한 계정입니다. 접속할 수 없습니다.');
+          await supabaseService.logEvent(id, 'LOGIN_BANNED', `Banned user ${id} attempted login.`);
           return;
         }
         const updatedHistory = [...(dbUser.visit_history || []), Date.now()];
@@ -130,16 +132,21 @@ const App: React.FC = () => {
           isBanned: dbUser.is_banned
         };
         setUser(loggedInUser);
+        await supabaseService.logEvent(id, 'LOGIN_SUCCESS', `User ${id} logged in.`);
       } else {
         alert('아이디 또는 비밀번호가 틀렸습니다.');
+        await supabaseService.logEvent(id, 'LOGIN_FAILURE', `User ${id} failed login (wrong credentials).`);
       }
     } catch (err) {
+      console.error("Login Error Details:", err);
       alert('로그인 중 오류가 발생했습니다.');
+      await supabaseService.logEvent(id, 'LOGIN_ERROR', `Error during login for ${id}: ${JSON.stringify(err)}`);
     }
   };
 
   const handleRegister = async (id: string, pw: string) => {
     try {
+      console.log(`Starting registration for ${id}...`);
       const existing = await supabaseService.getUser(id);
       if (existing) {
         alert('이미 존재하는 아이디입니다.');
@@ -157,8 +164,9 @@ const App: React.FC = () => {
       await supabaseService.createUser(newUser);
       setUser(newUser);
       alert('회원가입 성공!');
-    } catch (err) {
-      alert('회원가입 중 오류가 발생했습니다.');
+    } catch (err: any) {
+      console.error("Registration Error Details:", err);
+      alert(`회원가입 중 오류가 발생했습니다: ${err.message || JSON.stringify(err)}`);
     }
   };
 

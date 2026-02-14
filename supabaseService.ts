@@ -74,9 +74,36 @@ export const supabaseService = {
 
     // 6. 인벤토리 아이템 추가
     async addItemToInventory(userId: string, item: Item) {
-        // 1. items 테이블에 아이템이 없으면 추가하는 로직이 필요할 수 있으나, 
-        // 여기서는 간단하게 inventory에 메타데이터를 포함하거나 
-        // 이미 존재하는 item_id를 사용한다고 가정합니다.
-        // 스키마에 따라 items 테이블에 먼저 등록해야 할 수도 있습니다.
+        // ... 생략
+    },
+
+    // 7. 사용자 추적 로그 기록
+    async logEvent(username: string | null, eventType: string, description: string) {
+        try {
+            await supabase
+                .from('user_logs')
+                .insert([{
+                    user_id: username,
+                    event_type: eventType,
+                    description: description
+                }]);
+        } catch (err) {
+            console.error("Log failed:", err);
+        }
     }
+};
+
+// supabaseService 래퍼 - 로그 기록을 위해 일부 메서드 수정
+const originalCreateUser = supabaseService.createUser;
+supabaseService.createUser = async function (user: User) {
+    const data = await originalCreateUser(user);
+    await supabaseService.logEvent(user.id, 'SIGNUP', `User ${user.id} registered.`);
+    return data;
+};
+
+const originalUpdateUserData = supabaseService.updateUserData;
+supabaseService.updateUserData = async function (userId: string, balance: number, visitHistory: number[]) {
+    await originalUpdateUserData(userId, balance, visitHistory);
+    // userId is UUID here, we might want to log with username but let's just log the event
+    await supabaseService.logEvent(null, 'UPDATE_DATA', `User UUID ${userId} balance updated to ${balance}.`);
 };
