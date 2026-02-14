@@ -88,9 +88,10 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
   const startNegotiation = (item: Item) => {
     const rand = Math.random();
     let personality = NPCPersonality.NORMAL;
-    if (rand < 0.1) personality = NPCPersonality.SCAMMER;
-    else if (rand < 0.2) personality = NPCPersonality.KIND_AI;
-    else if (rand < 0.3) personality = NPCPersonality.RUDE;
+    if (rand < 0.2) personality = NPCPersonality.KIND;
+    else if (rand < 0.7) personality = NPCPersonality.NORMAL;
+    else if (rand < 0.8) personality = NPCPersonality.STRANGE;
+    else personality = NPCPersonality.RUDE;
 
     setNegotiation({
       active: true,

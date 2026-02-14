@@ -31,9 +31,10 @@ const Sell: React.FC<SellProps> = ({ user, onUpdateUser, onBack, onNegotiationUp
   const startSelling = (item: Item) => {
     const rand = Math.random();
     let personality = NPCPersonality.NORMAL;
-    if (rand < 0.1) personality = NPCPersonality.RUDE;
-    else if (rand < 0.15) personality = NPCPersonality.SCAMMER;
-    else if (rand < 0.25) personality = NPCPersonality.KIND_AI;
+    if (rand < 0.2) personality = NPCPersonality.KIND;
+    else if (rand < 0.7) personality = NPCPersonality.NORMAL;
+    else if (rand < 0.8) personality = NPCPersonality.STRANGE;
+    else personality = NPCPersonality.RUDE;
 
     const initialPrice = Math.floor(item.basePrice * (item.isCleaned ? 1.0 : 0.5));
 

@@ -40,18 +40,31 @@ export const getNPCResponse = async (
     const MAX_RETRIES = 3;
     const isRotten = item.isFood && item.purchaseTime && (Date.now() - item.purchaseTime > 1800000);
 
-    const systemInstruction = `
-    당신은 중고 거래 시뮬레이션 게임의 NPC입니다.
-    현재 거래 모드: ${mode === 'buy' ? '판매자' : '구매자'}
-    물건: ${item.name} (기본 시세: ${item.basePrice}원)
-    물건 상태: ${item.isCleaned ? '세척됨' : '보통'}, ${isRotten ? '부패함' : '싱싱함'}
-    당신의 성격: ${personality}
-    현재 제안 가격: ${currentPrice}원
+    const personalityDetails = {
+        [NPCPersonality.KIND]: "매우 상냥하고 배려심이 깊습니다. 가격 제안을 기분 좋게 수락하는 편이며, 물건을 살 때는 오히려 더 얹어주기도 합니다. 말투에 '^^', 'ㅎㅎ', '감사합니다'가 많습니다.",
+        [NPCPersonality.NORMAL]: "평범한 당근마켓 거래자입니다. 예의 바르지만 손해는 보지 않으려 하며, 합리적인 수준의 네고(협상)만 받아들입니다.",
+        [NPCPersonality.STRANGE]: "종잡을 수 없는 사람입니다. 갑자기 엉뚱한 소리를 하거나, 가격을 말도 안 되게 부르기도 합니다. 말투가 독특하고 예측이 불가능합니다.",
+        [NPCPersonality.RUDE]: "매우 무례하고 예의가 없습니다. 가격 깎는 것을 극도로 싫어하며, 유저가 무리하게 네고를 요청하면 화를 내며 오히려 가격을 인상하거나 거래를 거부합니다. 말투가 거칠고 공격적입니다."
+    }[personality];
 
-    규칙:
-    1. 성격에 맞춰 현실적인 한국어 구어체로 대화하고 명확한 가격을 제시하세요.
-    2. 응답은 반드시 JSON 형식으로만 하세요: {"text": "대화내용", "newPrice": "숫자"}
-    3. 협상 중 가격은 숫자로만 응답해야 합니다.
+    const systemInstruction = `
+    당신의 역할: 중고 거래 어플(당근마켓 등)의 실제 이용자 NPC
+    현재 당신의 상태:
+    - 거래 모드: ${mode === 'buy' ? '판매자 (유저가 구매 시도 중)' : '구매자 (유저가 판매 시도 중)'}
+    - 대상 물건: ${item.name} (기본 시세: ${item.basePrice}원)
+    - 물건 상태: ${item.isCleaned ? '세척됨' : '보통'}, ${isRotten ? '부패함/썩음' : '싱싱함'}
+    - 당신의 성격: ${personality} (${personalityDetails})
+    - 현재 합의된 가격: ${currentPrice}원
+
+    대화 규칙 (중요):
+    1. **사람처럼 대화하세요**: 기계적인 말투가 아닌, 실제 중고 거래 메신저 대화처럼 짧고 자연스럽게 말하세요. "아 네", "직거래 되나요?", "네고 가능한가요?" 같은 실제 용어를 섞으세요.
+    2. **성격 반영**:
+       - '친절함': 가격을 유저에게 유리하게 잘 맞춰줍니다.
+       - '보통': 적당히 팽팽하게 밀당합니다.
+       - '이상함': 가격과 상관없는 딴소리를 하거나 갑자기 50% 세일/200% 인상을 제안하기도 합니다.
+       - '욕설/무례': **절대 가격을 깎아주지 않습니다.** 유저가 계속 깎아달라고 하면 "아 진짜 짜증나게 하네", "살 거 아니면 말아요" 라며 오히려 가격을 ${currentPrice}원에서 **상향(인상)** 시켜서 골탕 먹이세요.
+    3. **응답 형식**: 반드시 JSON 형식으로만 응답하세요: {"text": "상대방에게 할 말", "newPrice": "수정된(또는 유지된) 가격 숫자"}
+    4. **가격**: 협상된 최종 가격을 'newPrice' 필드에 숫자로만 적으세요.
   `;
 
     const messages: any[] = [

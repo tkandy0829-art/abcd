@@ -1,9 +1,9 @@
 
 export enum NPCPersonality {
-  NORMAL = '일반',
-  SCAMMER = '사기꾼',
-  KIND_AI = '친절한 AI',
-  RUDE = '진상/욕설'
+  KIND = '친절함',
+  NORMAL = '보통',
+  STRANGE = '이상함',
+  RUDE = '욕설/무례'
 }
 
 export interface Item {
