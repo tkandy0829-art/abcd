@@ -98,7 +98,7 @@ const Ranking: React.FC<RankingProps> = ({ users, onBack }) => {
 
                 <div className="text-right">
                   <p className="font-black text-orange-600">
-                    {u.balance.toLocaleString()}원
+                    {(Number(u.balance) || 0).toLocaleString()}원
                   </p>
                 </div>
               </div>

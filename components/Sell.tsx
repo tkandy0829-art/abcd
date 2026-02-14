@@ -159,7 +159,7 @@ const Sell: React.FC<SellProps> = ({ user, onUpdateUser, onBack, onNegotiationUp
         <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full max-w-md bg-white p-3 border-t flex flex-col gap-2 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)]">
           <div className="flex justify-between items-center px-2 mb-1">
             <span className="text-xs text-gray-400 font-medium tracking-tight">현재 구매 제안가</span>
-            <span className="text-sm font-black text-blue-600">{negotiation.currentPriceOffer.toLocaleString()}원</span>
+            <span className="text-sm font-black text-blue-600">{(Number(negotiation.currentPriceOffer) || 0).toLocaleString()}원</span>
           </div>
           <div className="flex gap-2">
             <input
@@ -203,7 +203,7 @@ const Sell: React.FC<SellProps> = ({ user, onUpdateUser, onBack, onNegotiationUp
               <div className="flex-1 min-w-0">
                 <h4 className="font-bold text-gray-800 text-sm truncate">{item.name}</h4>
                 <p className="text-[10px] text-gray-400">{item.isCleaned ? '✨ 세척됨' : '보통 상태'}</p>
-                <p className="text-xs text-orange-500 font-bold">예상 시세: {(item.basePrice * (item.isCleaned ? 2 : 1)).toLocaleString()}원</p>
+                <p className="text-xs text-orange-500 font-bold">예상 시세: {(Number(item.basePrice * (item.isCleaned ? 2 : 1)) || 0).toLocaleString()}원</p>
               </div>
               <div className="flex flex-col gap-1">
                 <button

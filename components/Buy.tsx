@@ -43,10 +43,10 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
           id: i.id,
           name: i.name,
           category: i.category,
-          basePrice: i.base_price,
-          isFood: i.is_food,
+          basePrice: i.basePrice,
+          isFood: i.isFood,
           isCleaned: false,
-          image: i.image_url || `https://picsum.photos/seed/${i.id}/200/200`,
+          image: i.image || `https://picsum.photos/seed/${i.id}/200/200`,
           stock: i.stock
         }));
         setItems(mappedItems);
@@ -100,7 +100,7 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
       currentPriceOffer: Number(item.basePrice),
       messages: [{
         sender: 'npc',
-        text: `안녕하세요! '${item.name}' 보고 계시네요. ${item.basePrice.toLocaleString()}원인데 가져가실래요?`,
+        text: `안녕하세요! '${item.name}' 보고 계시네요. ${(Number(item.basePrice) || 0).toLocaleString()}원인데 가져가실래요?`,
         timestamp: Date.now()
       }],
       mode: 'buy'
@@ -223,7 +223,7 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
         <div className="fixed bottom-20 left-1/2 -translate-x-1/2 w-full max-w-md bg-white p-3 border-t flex flex-col gap-2 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)]">
           <div className="flex justify-between items-center px-2 mb-1">
             <span className="text-xs text-gray-400 font-medium tracking-tight">현재 합의된 가격</span>
-            <span className="text-sm font-black text-orange-600">{negotiation.currentPriceOffer.toLocaleString()}원</span>
+            <span className="text-sm font-black text-orange-600">{(Number(negotiation.currentPriceOffer) || 0).toLocaleString()}원</span>
           </div>
           <div className="flex gap-2">
             <input
@@ -287,7 +287,7 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
                   <span className="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded text-gray-500">{item.category}</span>
                   {item.isFood && <span className="text-[10px] bg-green-50 px-1.5 py-0.5 rounded text-green-600 font-bold">FOOD</span>}
                 </div>
-                <p className="font-bold text-orange-600 mt-1">{item.basePrice.toLocaleString()}원</p>
+                <p className="font-bold text-orange-600 mt-1">{(Number(item.basePrice) || 0).toLocaleString()}원</p>
                 <p className="text-[10px] text-gray-400">재고: {item.stock}개</p>
               </div>
               <button

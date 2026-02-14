@@ -23,7 +23,7 @@ const Home: React.FC<HomeProps> = ({ user, onNavigate }) => {
           <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 flex justify-between items-center">
             <div>
               <p className="text-[10px] font-bold opacity-70 uppercase">나의 총 자산 가치</p>
-              <p className="text-xl font-black">{(user.balance + totalItemValue).toLocaleString()}원</p>
+              <p className="text-xl font-black">{(Number(user.balance + totalItemValue) || 0).toLocaleString()}원</p>
             </div>
             <div className="text-right">
               <p className="text-[10px] font-bold opacity-70 uppercase">보유 아이템</p>

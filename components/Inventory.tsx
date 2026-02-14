@@ -66,13 +66,13 @@ const Inventory: React.FC<InventoryProps> = ({ user, onUpdateUser, onBack }) => 
                   <p className="text-xs font-medium text-orange-500">{getStatus(item)}</p>
                 </div>
                 <div className="flex justify-between items-end">
-                  <span className="font-bold text-gray-700">{(item.basePrice * (item.isCleaned ? 2 : 1)).toLocaleString()}원</span>
+                  <span className="font-bold text-gray-700">{(Number(item.basePrice * (item.isCleaned ? 2 : 1)) || 0).toLocaleString()}원</span>
                   {!item.isCleaned && (
                     <button
                       onClick={() => handleClean(item)}
                       className="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-100 transition-colors"
                     >
-                      세척 ({Math.floor(item.basePrice * CLEANING_COST_RATIO).toLocaleString()}원)
+                      세척 ({Math.floor(Number(item.basePrice) * CLEANING_COST_RATIO).toLocaleString()}원)
                     </button>
                   )}
                 </div>
