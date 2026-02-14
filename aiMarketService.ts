@@ -96,7 +96,8 @@ export const aiMarketService = {
             const selected = dummyPool.sort(() => 0.5 - Math.random()).slice(0, 5);
 
             for (const item of selected) {
-                await this.registerAIItem(item, Math.floor(Math.random() * 3) + 1);
+                const initialStock = item.isFood ? 100 : 900;
+                await this.registerAIItem(item, initialStock);
             }
 
             // 시간 업데이트

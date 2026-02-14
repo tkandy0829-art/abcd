@@ -69,7 +69,7 @@ const App: React.FC = () => {
             isFood: !!isFood,
             isCleaned: true,
             image: `https://picsum.photos/seed/${Date.now()}/200/200`
-          }, Math.floor(Math.random() * 2) + 1);
+          }, isFood ? 100 : 900);
           console.log("AI neighbor posted a new item!");
         } catch (err) {
           console.error("AI post failed", err);
