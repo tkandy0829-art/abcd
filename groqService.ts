@@ -2,9 +2,17 @@
 import Groq from "groq-sdk";
 import { NPCPersonality, Item } from "./types";
 
-// Vercel 환경변수 및 Vite 환경변수 대응 (VITE_ 접두어 사용 권장)
-const apiKey = import.meta.env.VITE_GROQ_API_KEY;
-const groq = new Groq({ apiKey, dangerouslyAllowBrowser: true });
+// Vercel 환경변수 및 Vite 환경변수 대응
+const getApiKey = () => import.meta.env.VITE_GROQ_API_KEY;
+
+// 클라이언트를 함수 내부에서 초기화하거나, 더미 키를 제공하여 즉시 에러가 나지 않도록 합니다.
+const createGroqClient = () => {
+    const key = getApiKey();
+    return new Groq({
+        apiKey: key || "MISSING_API_KEY",
+        dangerouslyAllowBrowser: true
+    });
+};
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -17,14 +25,17 @@ export const getNPCResponse = async (
     chatHistory: { sender: 'user' | 'npc'; text: string }[],
     retryCount = 0
 ): Promise<{ text: string; newPrice: string; isError?: boolean }> => {
+    const apiKey = getApiKey();
 
-    if (!apiKey || apiKey === "undefined") {
+    if (!apiKey || apiKey === "undefined" || apiKey === "") {
         return {
-            text: "상대방과 연결할 수 없습니다. (환경 변수에 VITE_GROQ_API_KEY가 설정되지 않았습니다.)",
+            text: "상대방과 연결할 수 없습니다. (Vercel 환경 변수에 VITE_GROQ_API_KEY를 등록해주세요.)",
             newPrice: String(currentPrice),
             isError: true
         };
     }
+
+    const groq = createGroqClient();
 
     const MAX_RETRIES = 3;
     const isRotten = item.isFood && item.purchaseTime && (Date.now() - item.purchaseTime > 1800000);
