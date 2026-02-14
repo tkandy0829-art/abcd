@@ -17,7 +17,7 @@ const Inventory: React.FC<InventoryProps> = ({ user, onUpdateUser, onBack }) => 
   const handleClean = (item: Item) => {
     const cost = Math.floor(item.basePrice * CLEANING_COST_RATIO);
     if (user.balance < cost) {
-      alert('세척 비용이 부족합니다!');
+      alert('씻어낼 값이 모자랍니다!');
       return;
     }
 
@@ -30,29 +30,29 @@ const Inventory: React.FC<InventoryProps> = ({ user, onUpdateUser, onBack }) => 
       balance: user.balance - cost,
       inventory: updatedInventory
     });
-    alert(`${item.name} 세척 완료! 가치가 2배로 상승했습니다.`);
+    alert(`${item.name} 씻기 마침! 값어치가 2배로 올랐습니다.`);
   };
 
   const getStatus = (item: Item) => {
     const isRotten = item.isFood && item.purchaseTime && (Date.now() - item.purchaseTime > ROT_TIME_MS);
     const statuses = [];
-    if (item.isCleaned) statuses.push('✨ 세척됨');
-    if (isRotten) statuses.push('🤢 부패함');
-    else if (item.isFood) statuses.push('🍎 신선함');
-    return statuses.join(' | ') || '기본 상태';
+    if (item.isCleaned) statuses.push('✨ 씻어냄');
+    if (isRotten) statuses.push('🤢 썩음');
+    else if (item.isFood) statuses.push('🍎 싱싱함');
+    return statuses.join(' | ') || '여느 모양';
   };
 
   return (
     <div className="p-4 flex flex-col gap-4">
       <div className="flex justify-between items-center mb-2">
-        <h2 className="text-xl font-bold text-gray-800">나의 재고</h2>
-        <span className="text-sm text-gray-500">총 {user.inventory.length}개</span>
+        <h2 className="text-xl font-bold text-gray-800">나의 보물창고</h2>
+        <span className="text-sm text-gray-500">모두 {user.inventory.length}개</span>
       </div>
 
       {sortedInventory.length === 0 ? (
         <div className="py-20 flex flex-col items-center justify-center text-gray-400 gap-2">
           <span className="text-5xl">📭</span>
-          <p>재고가 비어있습니다.</p>
+          <p>창고가 비어있습니다.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -72,7 +72,7 @@ const Inventory: React.FC<InventoryProps> = ({ user, onUpdateUser, onBack }) => 
                       onClick={() => handleClean(item)}
                       className="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-100 transition-colors"
                     >
-                      세척 ({Math.floor(Number(item.basePrice) * CLEANING_COST_RATIO).toLocaleString()}원)
+                      씻기 ({Math.floor(Number(item.basePrice) * CLEANING_COST_RATIO).toLocaleString()}원)
                     </button>
                   )}
                 </div>

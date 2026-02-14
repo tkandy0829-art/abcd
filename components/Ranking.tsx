@@ -10,14 +10,14 @@ interface RankingProps {
 const Ranking: React.FC<RankingProps> = ({ users, onBack }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  // 전체 유저를 금액순으로 정렬 (상위 50명)
+  // 모든 사람을 돈 많은 순서로 줄 세우기 (가장 앞 50명)
   const rankedUsers = useMemo(() => {
     return [...users]
       .sort((a: User, b: User) => b.balance - a.balance)
       .slice(0, 50);
   }, [users]);
 
-  // 검색 필터링
+  // 찾기 걸러내기
   const filteredRankings = useMemo(() => {
     if (!searchTerm.trim()) return rankedUsers;
     return rankedUsers.filter((u: User) =>
@@ -44,7 +44,7 @@ const Ranking: React.FC<RankingProps> = ({ users, onBack }) => {
       {/* Header */}
       <div className="p-6 bg-white border-b sticky top-0 z-10 shadow-sm">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-black text-gray-800 tracking-tight">부자 랭킹 🏆</h2>
+          <h2 className="text-2xl font-black text-gray-800 tracking-tight">돈 많은 이 등수 🏆</h2>
           <button
             onClick={onBack}
             className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -58,12 +58,12 @@ const Ranking: React.FC<RankingProps> = ({ users, onBack }) => {
         <div className="relative">
           <input
             type="text"
-            placeholder="아이디로 랭킹 검색..."
+            placeholder="이름으로 등수 찾기..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-3 bg-gray-100 border-none rounded-2xl text-sm focus:ring-2 focus:ring-orange-200 outline-none transition-all"
           />
-          <span className="absolute left-3 top-3.5 text-gray-400">🔍</span>
+          <span className="absolute left-3 top-3.5 text-gray-400">👀</span>
         </div>
       </div>
 
@@ -72,7 +72,7 @@ const Ranking: React.FC<RankingProps> = ({ users, onBack }) => {
         {filteredRankings.length === 0 ? (
           <div className="py-20 text-center text-gray-400">
             <p className="text-4xl mb-2">🤷‍♂️</p>
-            <p className="text-sm">랭킹에 해당 유저가 없습니다.</p>
+            <p className="text-sm">등수에 그 사람이 없습니다.</p>
           </div>
         ) : (
           filteredRankings.map((u: User, idx: number) => {
@@ -91,9 +91,7 @@ const Ranking: React.FC<RankingProps> = ({ users, onBack }) => {
 
                 <div className="flex-1 min-w-0">
                   <h4 className="font-bold text-gray-800 truncate">{u.id}</h4>
-                  <p className="text-[10px] text-gray-400 uppercase tracking-widest">
-                    아이템 {u.inventory.length}개 보유
-                  </p>
+                  보물 {u.inventory.length}개 가짐
                 </div>
 
                 <div className="text-right">
@@ -109,7 +107,7 @@ const Ranking: React.FC<RankingProps> = ({ users, onBack }) => {
 
       <div className="p-4 text-center">
         <p className="text-[10px] text-gray-300 font-bold uppercase tracking-widest">
-          실시간 자산 기준 상위 50명만 표시됩니다
+          지금 바로 가진 돈을 바탕으로 가장 앞 50명만 보여줍니다
         </p>
       </div>
     </div>

@@ -11,11 +11,11 @@ interface BuyProps {
   onNegotiationUpdate?: (item: Item | null, price: number) => void;
 }
 
-export const CATEGORIES = ['전기기구', '옷가지', '가구', '책', '먹을거리', '놀거리', '생활도구', '집짐승용품', '운동도구', '미용', '장신구', '부엌도구', '꾸미개', '풀나무'];
-export const ADJECTIVES = ['고급', '낡은', '뜯지않은', '옛느낌', '멋스러운', '실속형', '한정판', '복고풍', '튼튼한', '심플한', '기이한', '유서깊은', '요즘식', '값싼', '귀여운'];
+export const CATEGORIES = ['번개틀', '옷가지', '살림살이', '글월', '먹을거리', '놀거리', '살아감연장', '집짐승것', '몸놀림연장', '꾸미기', '몸치장', '부엌연장', '꾸미개', '풀나무'];
+export const ADJECTIVES = ['뛰어난', '낡은', '열지않은', '옛느낌', '멋스러운', '알찬', '하나뿐인', '옛생각', '튼튼한', '조촐한', '기이한', '유서깊은', '요즘식', '값싼', '귀여운'];
 export const NOUNS = [
-  '귀꽂이', '전자판', '누비판', '긴옷', '나무책상', '이야기책', '손과자', '놀이블록', '바람청정기', '짐승밥',
-  '운동채', '물크림', '화면기', '자전거', '의자', '가배틀', '귀덮개', '운동신', '장막', '소리개'
+  '귀꽂이', '번개판', '누비판', '긴옷', '나무책상', '글월전집', '손과자', '놀이알', '바람맑히개', '짐승밥',
+  '놀이채', '몸물', '화면틀', '두바퀴', '의자', '가배틀', '귀덮개', '달림신', '장막', '빛그림기'
 ];
 
 // Hardcoded list removed. Data will be fetched from Supabase.
@@ -259,7 +259,7 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-3 bg-white border border-gray-100 rounded-2xl shadow-sm outline-none focus:border-orange-300 transition-all"
           />
-          <span className="absolute left-3 top-3.5 text-gray-400 text-lg">🔍</span>
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">👀</span>
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
