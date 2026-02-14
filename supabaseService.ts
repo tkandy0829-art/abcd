@@ -76,24 +76,30 @@ export const supabaseService = {
 
     // 4. 유저 밸런스 및 인벤토리 업데이트
     async updateUserData(userId: string, balance: number, visitHistory: number[], inventory: Item[]) {
-        // 1. 유저 기본 정보 업데이트
+        console.log(`[Sync] Updating data for User UUID: ${userId}`);
         const { error: userError } = await supabase
             .from('users')
             .update({ balance, visit_history: visitHistory })
             .eq('id', userId);
 
-        if (userError) throw userError;
+        if (userError) {
+            console.error("[Sync] User update failed:", userError);
+            throw userError;
+        }
 
-        // 2. 인벤토리 업데이트 (기존 것 삭제 후 다시 삽입하는 단순 방식)
-        // 실제 운영 환경에서는 차이점만 업데이트하거나 트랜잭션을 사용하는 것이 좋습니다.
+        console.log(`[Sync] Deleting current inventory for User UUID: ${userId}`);
         const { error: deleteError } = await supabase
             .from('inventory')
             .delete()
             .eq('user_id', userId);
 
-        if (deleteError) throw deleteError;
+        if (deleteError) {
+            console.error("[Sync] Inventory delete failed:", deleteError);
+            throw deleteError;
+        }
 
         if (inventory.length > 0) {
+            console.log(`[Sync] Inserting ${inventory.length} items into inventory for User UUID: ${userId}`);
             const inventoryData = inventory.map(item => ({
                 user_id: userId,
                 name: item.name,
@@ -103,6 +109,7 @@ export const supabaseService = {
                 purchase_time: item.purchaseTime ? new Date(item.purchaseTime).toISOString() : null,
                 is_cleaned: item.isCleaned,
                 image_url: item.image,
+                item_id: item.originalId,
                 original_id: item.originalId
             }));
 
@@ -110,7 +117,13 @@ export const supabaseService = {
                 .from('inventory')
                 .insert(inventoryData);
 
-            if (insertError) throw insertError;
+            if (insertError) {
+                console.error("[Sync] Inventory insert failed:", insertError);
+                throw insertError;
+            }
+            console.log("[Sync] Inventory sync completed successfully.");
+        } else {
+            console.log("[Sync] Inventory is empty, nothing to insert.");
         }
     },
 

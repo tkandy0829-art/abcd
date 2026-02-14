@@ -26,7 +26,6 @@ const App: React.FC = () => {
     const initData = async () => {
       try {
         const dbUsers = await supabaseService.getAllUsers();
-        // Convert DB structure to User interface if needed
         if (dbUsers) setUsers(dbUsers.map((u: any) => ({
           id: u.username,
           password: u.password,
@@ -36,7 +35,24 @@ const App: React.FC = () => {
           isAdmin: u.is_admin,
           isBanned: u.is_banned
         })));
-        // Check and replenish items if 5 hours passed
+
+        // Session Persistence: Check localStorage
+        const savedUserId = localStorage.getItem('carrot_user_id');
+        if (savedUserId) {
+          const dbUser = await supabaseService.getUser(savedUserId);
+          if (dbUser) {
+            setUser({
+              id: dbUser.username,
+              password: dbUser.password,
+              balance: dbUser.balance,
+              inventory: dbUser.inventory || [],
+              visitHistory: dbUser.visit_history || [],
+              isAdmin: dbUser.is_admin,
+              isBanned: dbUser.is_banned
+            });
+          }
+        }
+
         await aiMarketService.checkAndReplenish();
       } catch (err) {
         console.error("Failed to fetch users", err);
@@ -130,6 +146,7 @@ const App: React.FC = () => {
           isBanned: dbUser.is_banned
         };
         setUser(loggedInUser);
+        localStorage.setItem('carrot_user_id', id); // Save to session
         await supabaseService.logEvent(id, 'LOGIN_SUCCESS', `${id} 님이 로그인했습니다.`);
       } else {
         alert('아이디 또는 비밀번호가 틀렸습니다.');
@@ -208,6 +225,7 @@ const App: React.FC = () => {
   };
 
   const logout = () => {
+    localStorage.removeItem('carrot_user_id'); // Clear session
     setUser(null);
     setView('home');
     setActiveNegotiation(null);
