@@ -46,7 +46,8 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
           basePrice: i.base_price,
           isFood: i.is_food,
           isCleaned: false,
-          image: i.image_url || `https://picsum.photos/seed/${i.id}/200/200`
+          image: i.image_url || `https://picsum.photos/seed/${i.id}/200/200`,
+          stock: i.stock
         }));
         setItems(mappedItems);
       } catch (err) {
@@ -156,12 +157,13 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
     }
 
     try {
-      // 1. 마켓에서 아이템 삭제 (Vercel/AI 연동 핵심)
-      await aiMarketService.removeMarketItem(negotiation.item.id);
+      // 1. 재고 차감 (Stock Management)
+      await aiMarketService.updateStock(negotiation.item.id, -1);
 
       const newItem: Item = {
         ...negotiation.item,
         id: `owned-${Date.now()}`,
+        originalId: negotiation.item.id,
         purchaseTime: negotiation.item.isFood ? Date.now() : undefined,
       };
 
@@ -285,6 +287,7 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
                   {item.isFood && <span className="text-[10px] bg-green-50 px-1.5 py-0.5 rounded text-green-600 font-bold">FOOD</span>}
                 </div>
                 <p className="font-bold text-orange-600 mt-1">{item.basePrice.toLocaleString()}원</p>
+                <p className="text-[10px] text-gray-400">재고: {item.stock}개</p>
               </div>
               <button
                 onClick={() => startNegotiation(item)}

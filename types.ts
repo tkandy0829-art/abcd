@@ -15,6 +15,8 @@ export interface Item {
   purchaseTime?: number;
   isCleaned: boolean;
   image: string;
+  stock?: number;
+  originalId?: string; // Original ID from items table
 }
 
 export interface User {

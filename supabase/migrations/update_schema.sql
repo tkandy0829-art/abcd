@@ -26,6 +26,7 @@ ADD COLUMN IF NOT EXISTS category TEXT,
 ADD COLUMN IF NOT EXISTS base_price INTEGER,
 ADD COLUMN IF NOT EXISTS is_food BOOLEAN DEFAULT FALSE,
 ADD COLUMN IF NOT EXISTS image_url TEXT,
+ADD COLUMN IF NOT EXISTS stock INTEGER DEFAULT 1, -- Added stock column
 ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now());
 
 -- 3. Inventory Table Updates
@@ -73,12 +74,32 @@ CREATE TABLE IF NOT EXISTS public.user_logs (
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 6. Enable RLS and Policies (Fix for 401 error)
+-- 6. Market State Table (For replenishment tracking)
+CREATE TABLE IF NOT EXISTS public.market_state (
+    id TEXT PRIMARY KEY, -- e.g., 'global'
+    last_replenishment_time TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Initialize market state if not exists
+INSERT INTO public.market_state (id, last_replenishment_time)
+VALUES ('global', now())
+ON CONFLICT (id) DO NOTHING;
+
+-- 7. Enable RLS and Policies (Fix for 401 error)
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.inventory ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.chat_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.market_state ENABLE ROW LEVEL SECURITY;
+
+-- market_state policies: Allow public select
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'Allow public select on market_state') THEN
+        CREATE POLICY "Allow public select on market_state" ON public.market_state FOR SELECT USING (true);
+    END IF;
+END $$;
 
 -- users policies: Allow public insert (registration) and selection (login check)
 DO $$ 
@@ -141,17 +162,17 @@ VALUES ('master', 'master131107', 1000000, true)
 ON CONFLICT (username) DO UPDATE 
 SET password = EXCLUDED.password, is_admin = true;
 
--- 8. Dummy Items Data
-INSERT INTO public.items (id, name, category, base_price, is_food, image_url)
+-- 9. Dummy Items Data with Stock
+INSERT INTO public.items (id, name, category, base_price, is_food, image_url, stock)
 VALUES 
-    (uuid_generate_v4(), '맥북 프로 14 M3', '전자기기', 2500000, false, 'https://images.unsplash.com/photo-1517336714460-45b2623a2fce'),
-    (uuid_generate_v4(), '아이폰 15 프로', '전자기기', 1500000, false, 'https://images.unsplash.com/photo-1592890288564-76628a30a657'),
-    (uuid_generate_v4(), '에어팟 맥스', '전자기기', 600000, false, 'https://images.unsplash.com/photo-1613040810320-bf75ce104631'),
-    (uuid_generate_v4(), '나이키 조던 1 하이', '의류/잡화', 350000, false, 'https://images.unsplash.com/photo-1584735175315-9d5df23860e6'),
-    (uuid_generate_v4(), '빈티지 레더 자켓', '의류/잡화', 200000, false, 'https://images.unsplash.com/photo-1551028719-00167b16eac5'),
-    (uuid_generate_v4(), '제주 한라봉 세트', '식품', 45000, true, 'https://images.unsplash.com/photo-1557800636-894a64c1696f'),
-    (uuid_generate_v4(), '유기농 수박', '식품', 25000, true, 'https://images.unsplash.com/photo-1587049352846-4a222e784d38'),
-    (uuid_generate_v4(), '플레이스테이션 5', '전자기기', 620000, false, 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3'),
-    (uuid_generate_v4(), '캠핑용 텐트 (4인용)', '취미/가구', 180000, false, 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4'),
-    (uuid_generate_v4(), '기계식 키보드', '전자기기', 120000, false, 'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae')
+    (uuid_generate_v4(), '맥북 프로 14 M3', '전자기기', 2500000, false, 'https://images.unsplash.com/photo-1517336714460-45b2623a2fce', 2),
+    (uuid_generate_v4(), '아이폰 15 프로', '전자기기', 1500000, false, 'https://images.unsplash.com/photo-1592890288564-76628a30a657', 3),
+    (uuid_generate_v4(), '에어팟 맥스', '전자기기', 600000, false, 'https://images.unsplash.com/photo-1613040810320-bf75ce104631', 5),
+    (uuid_generate_v4(), '나이키 조던 1 하이', '의류/잡화', 350000, false, 'https://images.unsplash.com/photo-1584735175315-9d5df23860e6', 2),
+    (uuid_generate_v4(), '빈티지 레더 자켓', '의류/잡화', 200000, false, 'https://images.unsplash.com/photo-1551028719-00167b16eac5', 4),
+    (uuid_generate_v4(), '제주 한라봉 세트', '식품', 45000, true, 'https://images.unsplash.com/photo-1557800636-894a64c1696f', 10),
+    (uuid_generate_v4(), '유기농 수박', '식품', 25000, true, 'https://images.unsplash.com/photo-1587049352846-4a222e784d38', 8),
+    (uuid_generate_v4(), '플레이스테이션 5', '전자기기', 620000, false, 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3', 1),
+    (uuid_generate_v4(), '캠핑용 텐트 (4인용)', '취미/가구', 180000, false, 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4', 3),
+    (uuid_generate_v4(), '기계식 키보드', '전자기기', 120000, false, 'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae', 6)
 ON CONFLICT DO NOTHING;

@@ -37,6 +37,8 @@ const App: React.FC = () => {
           isBanned: u.is_banned
         }));
         setUsers(mappedUsers);
+        // Check and replenish items if 5 hours passed
+        await aiMarketService.checkAndReplenish();
       } catch (err) {
         console.error("Failed to fetch users", err);
       } finally {
@@ -65,9 +67,9 @@ const App: React.FC = () => {
             category,
             basePrice,
             isFood: !!isFood,
-            isCleaned: false,
+            isCleaned: true,
             image: `https://picsum.photos/seed/${Date.now()}/200/200`
-          });
+          }, Math.floor(Math.random() * 2) + 1);
           console.log("AI neighbor posted a new item!");
         } catch (err) {
           console.error("AI post failed", err);
@@ -221,9 +223,13 @@ const App: React.FC = () => {
       if (activeNegotiation.mode === 'buy') {
         // 구매 협상 중 이탈 시 자동 구매 (잔액 부족 시 취소)
         if (currentBalance >= finalPrice) {
+          // 재고 차감
+          aiMarketService.updateStock(activeNegotiation.item.id, -1);
+
           const newItem: Item = {
             ...activeNegotiation.item,
             id: `owned-${Date.now()}`,
+            originalId: activeNegotiation.item.id,
             purchaseTime: activeNegotiation.item.isFood ? Date.now() : undefined,
           };
           updateUser({
@@ -234,6 +240,11 @@ const App: React.FC = () => {
         }
       } else if (activeNegotiation.mode === 'sell') {
         // 판매 협상 중 이탈 시 자동 판매
+        // 재고 가산
+        if (activeNegotiation.item.originalId) {
+          aiMarketService.updateStock(activeNegotiation.item.originalId, 1);
+        }
+
         updateUser({
           ...user,
           balance: currentBalance + finalPrice,

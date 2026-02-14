@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Item, NegotiationState, NPCPersonality, ChatMessage } from '../types';
 import { getNPCResponse } from '../groqService';
+import { aiMarketService } from '../aiMarketService';
 
 interface SellProps {
   user: User;
@@ -97,14 +98,22 @@ const Sell: React.FC<SellProps> = ({ user, onUpdateUser, onBack, onNegotiationUp
     const finalPrice = Number(negotiation.currentPriceOffer);
     const currentBalance = Number(user.balance);
 
-    onUpdateUser({
-      ...user,
-      balance: currentBalance + finalPrice,
-      inventory: user.inventory.filter((i: Item) => i.id !== negotiation.item.id)
-    });
-    alert(`판매 완료! ${finalPrice.toLocaleString()}원이 지급되었습니다.`);
-    if (onNegotiationUpdate) onNegotiationUpdate(null, 0);
-    onBack();
+    try {
+      if (negotiation.item.originalId) {
+        aiMarketService.updateStock(negotiation.item.originalId, 1);
+      }
+
+      onUpdateUser({
+        ...user,
+        balance: currentBalance + finalPrice,
+        inventory: user.inventory.filter((i: Item) => i.id !== negotiation.item.id)
+      });
+      alert(`판매 완료! ${finalPrice.toLocaleString()}원이 지급되었습니다.`);
+      if (onNegotiationUpdate) onNegotiationUpdate(null, 0);
+      onBack();
+    } catch (err) {
+      alert('거래 처리 중 오류가 발생했습니다.');
+    }
   };
 
   if (negotiation) {
@@ -205,6 +214,9 @@ const Sell: React.FC<SellProps> = ({ user, onUpdateUser, onBack, onNegotiationUp
                 <button
                   onClick={() => {
                     const halfPrice = Math.floor(item.basePrice / (item.isCleaned ? 1 : 2));
+                    if (item.originalId) {
+                      aiMarketService.updateStock(item.originalId, 1);
+                    }
                     onUpdateUser({
                       ...user,
                       balance: user.balance + halfPrice,
