@@ -32,28 +32,86 @@ export const supabaseService = {
             .single();
 
         if (error) return null;
-        return data;
+
+        // Transform inventory data if needed
+        const mappedInventory = (data.inventory || []).map((i: any) => ({
+            id: i.id,
+            name: i.name,
+            category: i.category,
+            basePrice: i.base_price,
+            isFood: i.is_food,
+            purchaseTime: i.purchase_time ? new Date(i.purchase_time).getTime() : undefined,
+            isCleaned: i.is_cleaned,
+            image: i.image_url,
+            originalId: i.original_id
+        }));
+
+        return { ...data, inventory: mappedInventory };
     },
 
     // 3. 모든 유저 정보 (랭킹 및 어드민용)
     async getAllUsers() {
         const { data, error } = await supabase
             .from('users')
-            .select('*')
+            .select('*, inventory(*)')
             .order('balance', { ascending: false });
 
         if (error) throw error;
-        return data;
+
+        return data.map((u: any) => {
+            const mappedInventory = (u.inventory || []).map((i: any) => ({
+                id: i.id,
+                name: i.name,
+                category: i.category,
+                basePrice: i.base_price,
+                isFood: i.is_food,
+                purchaseTime: i.purchase_time ? new Date(i.purchase_time).getTime() : undefined,
+                isCleaned: i.is_cleaned,
+                image: i.image_url,
+                originalId: i.original_id
+            }));
+            return { ...u, inventory: mappedInventory };
+        });
     },
 
     // 4. 유저 밸런스 및 인벤토리 업데이트
-    async updateUserData(userId: string, balance: number, visitHistory: number[]) {
-        const { error } = await supabase
+    async updateUserData(userId: string, balance: number, visitHistory: number[], inventory: Item[]) {
+        // 1. 유저 기본 정보 업데이트
+        const { error: userError } = await supabase
             .from('users')
             .update({ balance, visit_history: visitHistory })
             .eq('id', userId);
 
-        if (error) throw error;
+        if (userError) throw userError;
+
+        // 2. 인벤토리 업데이트 (기존 것 삭제 후 다시 삽입하는 단순 방식)
+        // 실제 운영 환경에서는 차이점만 업데이트하거나 트랜잭션을 사용하는 것이 좋습니다.
+        const { error: deleteError } = await supabase
+            .from('inventory')
+            .delete()
+            .eq('user_id', userId);
+
+        if (deleteError) throw deleteError;
+
+        if (inventory.length > 0) {
+            const inventoryData = inventory.map(item => ({
+                user_id: userId,
+                name: item.name,
+                category: item.category,
+                base_price: item.basePrice,
+                is_food: item.isFood,
+                purchase_time: item.purchaseTime ? new Date(item.purchaseTime).toISOString() : null,
+                is_cleaned: item.isCleaned,
+                image_url: item.image,
+                original_id: item.originalId
+            }));
+
+            const { error: insertError } = await supabase
+                .from('inventory')
+                .insert(inventoryData);
+
+            if (insertError) throw insertError;
+        }
     },
 
     // 5. 관리자용 유저 통합 업데이트 (벤, 관리자 권한 포함)
@@ -102,8 +160,7 @@ supabaseService.createUser = async function (user: User) {
 };
 
 const originalUpdateUserData = supabaseService.updateUserData;
-supabaseService.updateUserData = async function (userId: string, balance: number, visitHistory: number[]) {
-    await originalUpdateUserData(userId, balance, visitHistory);
-    // userId is UUID here, we might want to log with username but let's just log the event
-    await supabaseService.logEvent(null, 'UPDATE_DATA', `User UUID ${userId} balance updated to ${balance}.`);
+supabaseService.updateUserData = async function (userId: string, balance: number, visitHistory: number[], inventory: Item[]) {
+    await originalUpdateUserData(userId, balance, visitHistory, inventory);
+    await supabaseService.logEvent(null, 'UPDATE_DATA', `User UUID ${userId} balance/inventory updated.`);
 };

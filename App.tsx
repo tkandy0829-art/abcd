@@ -27,16 +27,15 @@ const App: React.FC = () => {
       try {
         const dbUsers = await supabaseService.getAllUsers();
         // Convert DB structure to User interface if needed
-        const mappedUsers: User[] = dbUsers.map((u: any) => ({
+        if (dbUsers) setUsers(dbUsers.map((u: any) => ({
           id: u.username,
           password: u.password,
           balance: u.balance,
-          inventory: [], // Inventory will be fetched separately or joins
+          inventory: u.inventory || [],
           visitHistory: u.visit_history || [],
           isAdmin: u.is_admin,
           isBanned: u.is_banned
-        }));
-        setUsers(mappedUsers);
+        })));
         // Check and replenish items if 5 hours passed
         await aiMarketService.checkAndReplenish();
       } catch (err) {
@@ -119,13 +118,13 @@ const App: React.FC = () => {
           return;
         }
         const updatedHistory = [...(dbUser.visit_history || []), Date.now()];
-        await supabaseService.updateUserData(dbUser.id, dbUser.balance, updatedHistory);
+        await supabaseService.updateUserData(dbUser.id, dbUser.balance, updatedHistory, dbUser.inventory || []);
 
         const loggedInUser: User = {
           id: dbUser.username,
           password: dbUser.password,
           balance: dbUser.balance,
-          inventory: [], // Handle inventory loading
+          inventory: dbUser.inventory || [],
           visitHistory: updatedHistory,
           isAdmin: (id === 'ltk2757' || id === 'master') ? true : dbUser.is_admin,
           isBanned: dbUser.is_banned
@@ -175,7 +174,7 @@ const App: React.FC = () => {
       // Sync to Supabase
       const dbUser = await supabaseService.getUser(updatedUser.id);
       if (dbUser) {
-        await supabaseService.updateUserData(dbUser.id, updatedUser.balance, updatedUser.visitHistory);
+        await supabaseService.updateUserData(dbUser.id, updatedUser.balance, updatedUser.visitHistory, updatedUser.inventory);
         // If ban/admin status changed, special handling or update other fields
         // For simplicity, we assume updateUserData covers basic stats
       }
