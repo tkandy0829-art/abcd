@@ -11,7 +11,7 @@ interface InventoryProps {
 
 const Inventory: React.FC<InventoryProps> = ({ user, onUpdateUser, onBack }) => {
   const sortedInventory = useMemo(() => {
-    return [...user.inventory].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+    return [...user.inventory].sort((a: Item, b: Item) => a.name.localeCompare(b.name, 'ko'));
   }, [user.inventory]);
 
   const handleClean = (item: Item) => {
@@ -21,10 +21,10 @@ const Inventory: React.FC<InventoryProps> = ({ user, onUpdateUser, onBack }) => 
       return;
     }
 
-    const updatedInventory = user.inventory.map(i => 
+    const updatedInventory = user.inventory.map((i: Item) =>
       i.id === item.id ? { ...i, isCleaned: true } : i
     );
-    
+
     onUpdateUser({
       ...user,
       balance: user.balance - cost,
@@ -56,7 +56,7 @@ const Inventory: React.FC<InventoryProps> = ({ user, onUpdateUser, onBack }) => 
         </div>
       ) : (
         <div className="space-y-3">
-          {sortedInventory.map((item) => (
+          {sortedInventory.map((item: Item) => (
             <div key={item.id} className="bg-white border border-gray-100 p-4 rounded-2xl shadow-sm flex gap-4">
               <img src={item.image} alt={item.name} className="w-20 h-20 rounded-xl object-cover bg-gray-50" />
               <div className="flex-1 flex flex-col justify-between">
@@ -68,7 +68,7 @@ const Inventory: React.FC<InventoryProps> = ({ user, onUpdateUser, onBack }) => 
                 <div className="flex justify-between items-end">
                   <span className="font-bold text-gray-700">{(item.basePrice * (item.isCleaned ? 2 : 1)).toLocaleString()}원</span>
                   {!item.isCleaned && (
-                    <button 
+                    <button
                       onClick={() => handleClean(item)}
                       className="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg hover:bg-blue-100 transition-colors"
                     >

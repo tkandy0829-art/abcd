@@ -81,7 +81,7 @@ const App: React.FC = () => {
   // Update current user in sync with users list
   useEffect(() => {
     if (user) {
-      const updatedUser = users.find(u => u.id === user.id);
+      const updatedUser = users.find((u: User) => u.id === user.id);
       if (updatedUser) {
         if (updatedUser.isBanned && !updatedUser.isAdmin) {
           alert('당신의 계정은 관리자에 의해 정지되었습니다.');
@@ -163,7 +163,7 @@ const App: React.FC = () => {
   };
 
   const updateUser = useCallback(async (updatedUser: User) => {
-    setUsers(prev => prev.map(u => u.id === updatedUser.id ? updatedUser : u));
+    setUsers((prev: User[]) => prev.map((u: User) => u.id === updatedUser.id ? updatedUser : u));
     try {
       // Sync to Supabase
       const dbUser = await supabaseService.getUser(updatedUser.id);
@@ -179,7 +179,7 @@ const App: React.FC = () => {
 
   const handleAdminUpdateUsers = async (updatedUsers: User[]) => {
     // Determine which user was updated by comparing with current state
-    const changedUser = updatedUsers.find((u, i) => {
+    const changedUser = updatedUsers.find((u: User, i: number) => {
       const current = users[i];
       return current && (
         u.balance !== current.balance ||
@@ -232,7 +232,7 @@ const App: React.FC = () => {
         updateUser({
           ...user,
           balance: currentBalance + finalPrice,
-          inventory: user.inventory.filter(i => i.id !== activeNegotiation.item.id)
+          inventory: user.inventory.filter((i: Item) => i.id !== activeNegotiation.item.id)
         });
       }
     }
@@ -256,7 +256,7 @@ const App: React.FC = () => {
       {view === 'home' && (
         <Home
           user={user}
-          onNavigate={(v) => setView(v as any)}
+          onNavigate={(v: string) => setView(v as any)}
         />
       )}
       {view === 'buy' && (
@@ -264,7 +264,7 @@ const App: React.FC = () => {
           user={user}
           onUpdateUser={updateUser}
           onBack={handleHomeNavigation}
-          onNegotiationUpdate={(item, price) => setActiveNegotiation(item ? { item, price, mode: 'buy' } : null)}
+          onNegotiationUpdate={(item: Item | null, price: number) => setActiveNegotiation(item ? { item, price, mode: 'buy' } : null)}
         />
       )}
       {view === 'sell' && (
@@ -272,7 +272,7 @@ const App: React.FC = () => {
           user={user}
           onUpdateUser={updateUser}
           onBack={handleHomeNavigation}
-          onNegotiationUpdate={(item, price) => setActiveNegotiation(item ? { item, price, mode: 'sell' } : null)}
+          onNegotiationUpdate={(item: Item | null, price: number) => setActiveNegotiation(item ? { item, price, mode: 'sell' } : null)}
         />
       )}
       {view === 'inventory' && (

@@ -13,14 +13,14 @@ const Ranking: React.FC<RankingProps> = ({ users, onBack }) => {
   // 전체 유저를 금액순으로 정렬 (상위 50명)
   const rankedUsers = useMemo(() => {
     return [...users]
-      .sort((a, b) => b.balance - a.balance)
+      .sort((a: User, b: User) => b.balance - a.balance)
       .slice(0, 50);
   }, [users]);
 
   // 검색 필터링
   const filteredRankings = useMemo(() => {
     if (!searchTerm.trim()) return rankedUsers;
-    return rankedUsers.filter(u => 
+    return rankedUsers.filter((u: User) =>
       u.id.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [rankedUsers, searchTerm]);
@@ -45,7 +45,7 @@ const Ranking: React.FC<RankingProps> = ({ users, onBack }) => {
       <div className="p-6 bg-white border-b sticky top-0 z-10 shadow-sm">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-black text-gray-800 tracking-tight">부자 랭킹 🏆</h2>
-          <button 
+          <button
             onClick={onBack}
             className="text-gray-400 hover:text-gray-600 transition-colors"
           >
@@ -54,9 +54,9 @@ const Ranking: React.FC<RankingProps> = ({ users, onBack }) => {
             </svg>
           </button>
         </div>
-        
+
         <div className="relative">
-          <input 
+          <input
             type="text"
             placeholder="아이디로 랭킹 검색..."
             value={searchTerm}
@@ -75,21 +75,20 @@ const Ranking: React.FC<RankingProps> = ({ users, onBack }) => {
             <p className="text-sm">랭킹에 해당 유저가 없습니다.</p>
           </div>
         ) : (
-          filteredRankings.map((u, idx) => {
+          filteredRankings.map((u: User, idx: number) => {
             // 원본 랭킹에서의 순위 찾기 (검색 결과에서도 실제 순위 표시 위함)
-            const actualRank = rankedUsers.findIndex(orig => orig.id === u.id);
-            
+            const actualRank = rankedUsers.findIndex((orig: User) => orig.id === u.id);
+
             return (
-              <div 
-                key={u.id} 
-                className={`bg-white p-4 rounded-2xl shadow-sm border border-transparent hover:border-orange-100 transition-all flex items-center gap-4 ${
-                  actualRank < 3 ? 'ring-1 ring-orange-50' : ''
-                }`}
+              <div
+                key={u.id}
+                className={`bg-white p-4 rounded-2xl shadow-sm border border-transparent hover:border-orange-100 transition-all flex items-center gap-4 ${actualRank < 3 ? 'ring-1 ring-orange-50' : ''
+                  }`}
               >
                 <div className={`w-10 text-center ${getRankColor(actualRank)}`}>
                   {getRankBadge(actualRank)}
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
                   <h4 className="font-bold text-gray-800 truncate">{u.id}</h4>
                   <p className="text-[10px] text-gray-400 uppercase tracking-widest">

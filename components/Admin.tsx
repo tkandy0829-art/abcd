@@ -123,7 +123,7 @@ const Admin: React.FC<AdminProps> = ({ users, onUpdateUsers, onBack }) => {
             <div>
               <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Login History (Recent 3)</p>
               <ul className="mt-1 space-y-1">
-                {selectedUser.visitHistory.slice(-3).reverse().map((v, i) => (
+                {selectedUser.visitHistory.slice(-3).reverse().map((v: number, i: number) => (
                   <li key={i} className="text-[11px] text-gray-500 flex justify-between">
                     <span>{new Date(v).toLocaleDateString()}</span>
                     <span>{new Date(v).toLocaleTimeString()}</span>
@@ -139,7 +139,7 @@ const Admin: React.FC<AdminProps> = ({ users, onUpdateUsers, onBack }) => {
         <h3 className="text-xs font-black text-gray-400 mb-3 px-1 uppercase tracking-widest">Registered User List</h3>
         <div className="bg-white rounded-3xl border border-gray-100 p-2 shadow-sm max-h-60 overflow-y-auto no-scrollbar">
           <div className="flex flex-col">
-            {users.map((u) => (
+            {users.map((u: User) => (
               <button
                 key={u.id}
                 onClick={() => {
@@ -183,7 +183,7 @@ const Admin: React.FC<AdminProps> = ({ users, onUpdateUsers, onBack }) => {
           <div className="bg-white rounded-3xl border border-gray-100 p-5 shadow-sm">
             <p className="text-[10px] text-gray-400 font-bold uppercase">System Wealth</p>
             <p className="text-xl font-black text-gray-800 mt-1">
-              {users.reduce((acc, u) => acc + u.balance, 0).toLocaleString()}
+              {users.reduce((acc: number, u: User) => acc + u.balance, 0).toLocaleString()}
               <span className="text-sm font-normal text-gray-400 ml-1">원</span>
             </p>
           </div>

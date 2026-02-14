@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { User, Item, NegotiationState, NPCPersonality, ChatMessage } from '../types';
-import { getNPCResponse } from '../geminiService';
+import { getNPCResponse } from '../groqService';
 import { aiMarketService } from '../aiMarketService';
 
 interface BuyProps {
@@ -61,14 +61,14 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
   const filteredAndSortedItems = useMemo(() => {
     let list = [...items];
     if (searchTerm.trim()) {
-      list = list.filter(item =>
+      list = list.filter((item: Item) =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.category.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     switch (sortOrder) {
-      case 'price-asc': list.sort((a, b) => a.basePrice - b.basePrice); break;
-      case 'price-desc': list.sort((a, b) => b.basePrice - a.basePrice); break;
+      case 'price-asc': list.sort((a: Item, b: Item) => a.basePrice - b.basePrice); break;
+      case 'price-desc': list.sort((a: Item, b: Item) => b.basePrice - a.basePrice); break;
       default: break;
     }
     return list;
@@ -191,7 +191,7 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
         </div>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4 pb-40">
-          {negotiation.messages.map((m, idx) => (
+          {negotiation.messages.map((m: ChatMessage, idx: number) => (
             <div key={idx} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-[85%] px-4 py-2 rounded-2xl text-sm ${m.sender === 'user' ? 'bg-[#ff8a3d] text-white rounded-tr-none' : 'bg-white border text-gray-800 rounded-tl-none shadow-sm'
                 }`}>
@@ -275,7 +275,7 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
             <p className="text-sm">검색 결과가 없습니다.</p>
           </div>
         ) : (
-          filteredAndSortedItems.map(item => (
+          filteredAndSortedItems.map((item: Item) => (
             <div key={item.id} className="bg-white border border-gray-50 p-4 rounded-2xl shadow-sm flex gap-4 items-center hover:border-orange-100 transition-all group active:scale-[0.98]">
               <img src={item.image} alt={item.name} className="w-16 h-16 rounded-xl object-cover bg-gray-50 flex-shrink-0" />
               <div className="flex-1 min-w-0">
