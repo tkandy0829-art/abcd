@@ -11,20 +11,20 @@ interface BuyProps {
   onNegotiationUpdate?: (item: Item | null, price: number) => void;
 }
 
-export const CATEGORIES = ['번개틀', '옷가지', '살림살이', '글월', '먹을거리', '놀거리', '살아감연장', '집짐승것', '몸놀림연장', '꾸미기', '몸치장', '부엌연장', '꾸미개', '풀나무'];
-export const ADJECTIVES = ['뛰어난', '낡은', '열지않은', '옛느낌', '멋스러운', '알찬', '하나뿐인', '옛생각', '튼튼한', '조촐한', '기이한', '유서깊은', '요즘식', '값싼', '귀여운'];
+export const CATEGORIES = ['전자기기', '의류', '가구', '도서', '식품', '취미', '생활용품', '반려동물', '스포츠', '뷰티', '잡화', '주방용품', '인테리어', '식물'];
+export const ADJECTIVES = ['뛰어난', '낡은', '미개봉', '빈티지', '세련된', '가성비', '유니크', '레트로', '튼튼한', '심플한', '특이한', '깔끔한', '트렌디', '저렴한', '귀여운'];
 export const NOUNS = [
-  '귀꽂이', '번개판', '누비판', '긴옷', '나무책상', '글월전집', '손과자', '놀이알', '바람맑히개', '짐승밥',
-  '놀이채', '몸물', '화면틀', '두바퀴', '의자', '가배틀', '귀덮개', '달림신', '장막', '빛그림기'
+  '아이패드', '키보드', '마우스', '코트', '책상', '전집', '쿠키', '보드게임', '공기청정기', '사료',
+  '테니스채', '스킨로션', '모니터', '자전거', '의자', '커피머신', '헤드셋', '러닝화', '텐트', '카메라'
 ];
 
 // Hardcoded list removed. Data will be fetched from Supabase.
 
-type SortOrder = 'latest' | 'price-asc' | 'price-desc';
+type SortOrder = '최신순' | '낮은가격순' | '높은가격순';
 
 const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpdate }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('latest');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('최신순');
   const [negotiation, setNegotiation] = useState<NegotiationState | null>(null);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -44,18 +44,71 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
           category: i.category,
           basePrice: i.basePrice,
           isFood: i.isFood,
-          isCleaned: false,
+          isCleaned: false, // Assuming default false for fetched items
           image: i.image || `https://picsum.photos/seed/${i.id}/200/200`,
           stock: i.stock
         }));
         setItems(mappedItems);
       } catch (err) {
-        console.error("Failed to load items", err);
+        console.error("데이터 가져오기 실패:", err);
       } finally {
         setListLoading(false);
       }
     };
+
     fetchItems();
+
+    // 실시간 구독 설정
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // INSERT, UPDATE, DELETE 모두 감지
+          schema: 'public',
+          table: 'items'
+        },
+        (payload) => {
+          console.log('실시간 변화 감지:', payload);
+          if (payload.eventType === 'UPDATE') {
+            const updatedItem = payload.new as any; // Cast to any to access snake_case properties
+            setItems(current => current.map(item =>
+              item.id === updatedItem.id
+                ? {
+                  ...item,
+                  stock: updatedItem.stock,
+                  name: updatedItem.name,
+                  basePrice: updatedItem.base_price,
+                  category: updatedItem.category,
+                  isFood: updatedItem.is_food,
+                  image: updatedItem.image_url || item.image // Use existing image if new one is null
+                }
+                : item
+            ));
+          } else if (payload.eventType === 'INSERT') {
+            const newItem = payload.new as any; // Cast to any
+            const formattedItem: Item = {
+              id: newItem.id,
+              name: newItem.name,
+              category: newItem.category,
+              basePrice: newItem.base_price,
+              isFood: newItem.is_food,
+              isCleaned: false, // Default for new items
+              image: newItem.image_url || `https://picsum.photos/seed/${newItem.id}/200/200`, // Fallback image
+              stock: newItem.stock
+            };
+            setItems(current => [formattedItem, ...current]);
+          } else if (payload.eventType === 'DELETE') {
+            const oldItem = payload.old as any; // Cast to any
+            setItems(current => current.filter(item => item.id !== oldItem.id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const filteredAndSortedItems = useMemo(() => {
@@ -254,7 +307,7 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
         <div className="relative">
           <input
             type="text"
-            placeholder="2,000개의 보물 중 찾기..."
+            placeholder="보물 이름으로 찾기..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-3 bg-white border border-gray-100 rounded-2xl shadow-sm outline-none focus:border-orange-300 transition-all"
@@ -263,9 +316,9 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-          <SortChip label="최신순" active={sortOrder === 'latest'} onClick={() => setSortOrder('latest')} />
-          <SortChip label="저가순" active={sortOrder === 'price-asc'} onClick={() => setSortOrder('price-asc')} />
-          <SortChip label="고가순" active={sortOrder === 'price-desc'} onClick={() => setSortOrder('price-desc')} />
+          <SortChip label="최신순" active={sortOrder === '최신순'} onClick={() => setSortOrder('최신순')} />
+          <SortChip label="낮은가격순" active={sortOrder === '낮은가격순'} onClick={() => setSortOrder('낮은가격순')} />
+          <SortChip label="높은가격순" active={sortOrder === '높은가격순'} onClick={() => setSortOrder('높은가격순')} />
         </div>
       </div>
 

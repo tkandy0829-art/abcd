@@ -38,27 +38,27 @@ const Home: React.FC<HomeProps> = ({ user, onNavigate }) => {
       {/* Quick Menu */}
       <div className="grid grid-cols-2 gap-4">
         <MenuButton
-          icon="🛍️"
-          label="보물 사기"
-          sub="싼 보물을 찾아요"
+          icon="🤝"
+          label="중고거래"
+          sub="이웃과 거래하기"
           onClick={() => onNavigate('buy')}
         />
         <MenuButton
-          icon="🤝"
-          label="보물 팔기"
-          sub="비싸게 되팔아보세요"
-          onClick={() => onNavigate('sell')}
-        />
-        <MenuButton
-          icon="📦"
-          label="보물 창고"
-          sub="내 보물 갈무리"
+          icon="🎒"
+          label="나의 가방"
+          sub="가진 물건 보기"
           onClick={() => onNavigate('inventory')}
         />
         <MenuButton
+          icon="💰"
+          label="보물 팔기"
+          sub="안 쓰는 물건 팔기"
+          onClick={() => onNavigate('sell')}
+        />
+        <MenuButton
           icon="🏆"
-          label="부자 등수"
-          sub="누가 가장 부유한가요?"
+          label="부자 랭킹"
+          sub="내 순위 확인"
           onClick={() => onNavigate('ranking')}
         />
       </div>
@@ -73,7 +73,7 @@ const Home: React.FC<HomeProps> = ({ user, onNavigate }) => {
                 {idx === 0 ? '요즘 들름' : `${idx + 1}번째 앞 들름`}
               </span>
               <span className="text-gray-400">
-                {new Date(time).toLocaleString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                요즘 들른 때: {new Date(user.visitHistory[user.visitHistory.length - 1]).toLocaleString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
               </span>
             </div>
           ))}
