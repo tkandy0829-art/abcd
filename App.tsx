@@ -102,15 +102,12 @@ const App: React.FC = () => {
       const dbUser = await supabaseService.getUser(id);
       await supabaseService.logEvent(id, 'LOGIN_ATTEMPT', `User ${id} tried to log in.`);
 
-      // Admin Management for ltk2757
-      if (id === 'ltk2757') {
+      // Admin Management for ltk2757 & master
+      if (id === 'ltk2757' || id === 'master') {
         if (dbUser && !dbUser.is_admin) {
           // Force elevation if db exists but not admin
-          await supabaseService.adminUpdateUser('ltk2757', { isAdmin: true });
+          await supabaseService.adminUpdateUser(id, { isAdmin: true });
         }
-      } else if (id === 'master' && dbUser?.is_admin) {
-        // Demote master if it was admin
-        await supabaseService.adminUpdateUser('master', { isAdmin: false });
       }
 
       if (dbUser && dbUser.password === pw) {
@@ -128,7 +125,7 @@ const App: React.FC = () => {
           balance: dbUser.balance,
           inventory: [], // Handle inventory loading
           visitHistory: updatedHistory,
-          isAdmin: id === 'ltk2757' ? true : (id === 'master' ? false : dbUser.is_admin),
+          isAdmin: (id === 'ltk2757' || id === 'master') ? true : dbUser.is_admin,
           isBanned: dbUser.is_banned
         };
         setUser(loggedInUser);

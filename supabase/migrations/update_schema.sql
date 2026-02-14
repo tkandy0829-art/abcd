@@ -1,3 +1,5 @@
+-- Enable uuid-ossp extension for UUID generation
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- 1. Users Table Updates
 ALTER TABLE public.users 
@@ -138,3 +140,18 @@ INSERT INTO public.users (username, password, balance, is_admin)
 VALUES ('master', 'master131107', 1000000, true)
 ON CONFLICT (username) DO UPDATE 
 SET password = EXCLUDED.password, is_admin = true;
+
+-- 8. Dummy Items Data
+INSERT INTO public.items (id, name, category, base_price, is_food, image_url)
+VALUES 
+    (uuid_generate_v4(), '맥북 프로 14 M3', '전자기기', 2500000, false, 'https://images.unsplash.com/photo-1517336714460-45b2623a2fce'),
+    (uuid_generate_v4(), '아이폰 15 프로', '전자기기', 1500000, false, 'https://images.unsplash.com/photo-1592890288564-76628a30a657'),
+    (uuid_generate_v4(), '에어팟 맥스', '전자기기', 600000, false, 'https://images.unsplash.com/photo-1613040810320-bf75ce104631'),
+    (uuid_generate_v4(), '나이키 조던 1 하이', '의류/잡화', 350000, false, 'https://images.unsplash.com/photo-1584735175315-9d5df23860e6'),
+    (uuid_generate_v4(), '빈티지 레더 자켓', '의류/잡화', 200000, false, 'https://images.unsplash.com/photo-1551028719-00167b16eac5'),
+    (uuid_generate_v4(), '제주 한라봉 세트', '식품', 45000, true, 'https://images.unsplash.com/photo-1557800636-894a64c1696f'),
+    (uuid_generate_v4(), '유기농 수박', '식품', 25000, true, 'https://images.unsplash.com/photo-1587049352846-4a222e784d38'),
+    (uuid_generate_v4(), '플레이스테이션 5', '전자기기', 620000, false, 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3'),
+    (uuid_generate_v4(), '캠핑용 텐트 (4인용)', '취미/가구', 180000, false, 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4'),
+    (uuid_generate_v4(), '기계식 키보드', '전자기기', 120000, false, 'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae')
+ON CONFLICT DO NOTHING;
