@@ -124,7 +124,7 @@ const Sell: React.FC<SellProps> = ({ user, onUpdateUser, onBack, onNegotiationUp
           <div className="w-10"></div>
           <div className="text-center flex-1 mx-4">
             <h3 className="font-bold text-gray-800 line-clamp-1 text-sm">{negotiation.item.name}</h3>
-            <p className="text-[10px] text-gray-400 uppercase tracking-widest">당근 이웃(구매자)</p>
+            <p className="text-[10px] text-gray-400 uppercase tracking-widest">장터 이웃(구매자)</p>
           </div>
           <button onClick={() => onBack()} className="text-red-500 font-medium text-sm">포기</button>
         </div>
@@ -203,7 +203,7 @@ const Sell: React.FC<SellProps> = ({ user, onUpdateUser, onBack, onNegotiationUp
               <div className="flex-1 min-w-0">
                 <h4 className="font-bold text-gray-800 text-sm truncate">{item.name}</h4>
                 <p className="text-[10px] text-gray-400">{item.isCleaned ? '✨ 세척됨' : '보통 상태'}</p>
-                <p className="text-xs text-orange-500 font-bold">예상 시세: {(Number(item.basePrice * (item.isCleaned ? 2 : 1)) || 0).toLocaleString()}원</p>
+                <p className="text-xs text-orange-500 font-bold">짐작 값: {(Number(item.basePrice * (item.isCleaned ? 2 : 1)) || 0).toLocaleString()}원</p>
               </div>
               <div className="flex flex-col gap-1">
                 <button

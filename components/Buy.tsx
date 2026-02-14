@@ -11,12 +11,11 @@ interface BuyProps {
   onNegotiationUpdate?: (item: Item | null, price: number) => void;
 }
 
-export const CATEGORIES = ['전자기기', '의류', '가구', '도서', '식품', '취미', '생활가전', '반려동물', '스포츠', '뷰티', '잡화', '주방용품', '악세서리', '식물'];
-export const ADJECTIVES = ['고급', '낡은', '미개봉', '빈티지', '감성', '실속형', '한정판', '레트로', '튼튼한', '심플한', '유니크한', '클래식한', '트렌디한', '가성비', '귀여운'];
+export const CATEGORIES = ['전기기구', '옷가지', '가구', '책', '먹을거리', '놀거리', '생활도구', '집짐승용품', '운동도구', '미용', '장신구', '부엌도구', '꾸미개', '풀나무'];
+export const ADJECTIVES = ['고급', '낡은', '뜯지않은', '옛느낌', '멋스러운', '실속형', '한정판', '복고풍', '튼튼한', '심플한', '기이한', '유서깊은', '요즘식', '값싼', '귀여운'];
 export const NOUNS = [
-  '에어팟', '아이패드', '맥북', '롱패딩', '원목 책상', '소설 전집', '수제 쿠키', '레고 세트', '공기청정기', '강아지 사료',
-  '테니스 라켓', '수분 크림', '모니터', '자전거', '게이밍 체어', '커피 머신', '헤드폰', '운동화', '캠핑 텐트', '블루투스 스피커',
-  '삼각김밥', '컵라면', '초코바', '생수', '포테이토칩', '캔커피', '토스트', '도넛', '샌드위치', '우유'
+  '귀꽂이', '전자판', '누비판', '긴옷', '나무책상', '이야기책', '손과자', '놀이블록', '바람청정기', '짐승밥',
+  '운동채', '물크림', '화면기', '자전거', '의자', '가배틀', '귀덮개', '운동신', '장막', '소리개'
 ];
 
 // Hardcoded list removed. Data will be fetched from Supabase.
@@ -188,7 +187,7 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
           <div className="w-10"></div>
           <div className="text-center flex-1 mx-4">
             <h3 className="font-bold text-gray-800 line-clamp-1 text-sm">{negotiation.item.name}</h3>
-            <p className="text-[9px] text-gray-400 uppercase tracking-widest">당근 이웃(판매자)</p>
+            <p className="text-[9px] text-gray-400 uppercase tracking-widest">장터 이웃(판매자)</p>
           </div>
           <button onClick={() => onBack()} className="text-red-500 font-medium text-sm">포기</button>
         </div>
@@ -255,7 +254,7 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
         <div className="relative">
           <input
             type="text"
-            placeholder="2,000개의 보물 중 검색..."
+            placeholder="2,000개의 보물 중 찾기..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-3 bg-white border border-gray-100 rounded-2xl shadow-sm outline-none focus:border-orange-300 transition-all"
@@ -271,11 +270,11 @@ const Buy: React.FC<BuyProps> = ({ user, onUpdateUser, onBack, onNegotiationUpda
       </div>
 
       <div className="flex-1 space-y-3 pb-10">
-        <p className="text-[11px] text-gray-400 px-1 font-bold">검색 결과: {filteredAndSortedItems.length}개</p>
+        <p className="text-[11px] text-gray-400 px-1 font-bold">찾은 결과: {filteredAndSortedItems.length}개</p>
         {filteredAndSortedItems.length === 0 ? (
           <div className="py-20 flex flex-col items-center justify-center text-gray-300 gap-2">
             <span className="text-5xl">🤷‍♂️</span>
-            <p className="text-sm">검색 결과가 없습니다.</p>
+            <p className="text-sm">찾은 결과가 없습니다.</p>
           </div>
         ) : (
           filteredAndSortedItems.map((item: Item) => (
